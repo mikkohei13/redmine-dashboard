@@ -9,7 +9,9 @@ Setup:
 1) `make setup`
 1) `docker-compose up -d`
 
-Access the service, setting project id number and users id number and names as get-parameters:
+This pulls an image from Docker Hub and runs it. If you want to build the image locally, do `docker build` and `docker run` with parameters of your choice. 
+
+Then access the service, setting project number & user numbers and names as GET-parameters:
 
     http://example.com:85/?projectnumber={project_number}&users={user_number}:{user_name}/{user_number}:{user_name}
 
