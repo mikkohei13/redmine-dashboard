@@ -1,0 +1,20 @@
+
+version: '2'
+
+services:
+
+    backend:
+        image: mikkohei13/redmine-dashboard:0.3
+
+        restart: always
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - redmine-dashboard_api_key=
+            - redmine-dashboard_redmine_root=
+        ports:
+            - 85:80
+        volumes:
+            - ./html:/var/www/html
+            - ./data:/var/www/data
+            - ./errors:/var/www/errors

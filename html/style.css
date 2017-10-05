@@ -1,0 +1,42 @@
+.colors {
+    color: #10353B;
+    color: #37595B;
+    color: #9EC8C6;
+    color: #D4F2F2;
+    color: #A1C0C2;   
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+h1 {
+    color: #37595B;
+    font-weight: normal;
+}
+
+.note {
+    color: #37595B;
+}
+
+.user {
+    background-color: #D4F2F2;
+    margin: 0 1em 1em 0;
+    padding: 0.5em;
+    width: 14%;
+    float: left;
+
+}
+
+.user h2 {
+    margin-top: 0;
+}
+
+.user p {
+    margin: 0 0 1em 1em;
+}
+
+.user h4 {
+    margin: 0;
+    font-weight: normal;
+}
