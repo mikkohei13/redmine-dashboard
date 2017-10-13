@@ -1,6 +1,7 @@
 <?php
 /*LOCAL CHANGE*/
 
+// Get secrets from environment variables
 $apikey = getenv("redmine-dashboard_api_key");
 $redmineRoot = getenv("redmine-dashboard_redmine_root");
 
@@ -12,6 +13,7 @@ if ($_GET['key'] != $key) {
 }
 */
 
+// Check that setup is ok and parameters have been set
 if (empty($apikey) || empty($redmineRoot)) {
     echo "<h3>It works, sort of</h3>";
     echo "<p>Please set up your Redmine API key and root URL (e.g. https://myredmine.example.com) to the docker-compose.yml environment variables, and then restart docker-compose.";
@@ -25,6 +27,7 @@ elseif (! isset($_GET['projectnumber']) || ! isset($_GET['users'])) {
 }
 $projectNumber = intval($_GET['projectnumber']);
 
+// Get GET parameters
 $usersString = filter_input(INPUT_GET, "users", FILTER_SANITIZE_STRING);
 $usersArr = explode("/", $usersString);
 $usersToGet = Array();
@@ -41,6 +44,8 @@ foreach ($usersToGet as $userNumber => $userName) {
 }
 
 renderTemplate($usersTasks);
+
+//-----------------------------------------------------------------------------
 
 function renderTemplate($data) {
     require_once "template.php";
