@@ -39,8 +39,14 @@ foreach ($usersArr as $nro => $user) {
 
 $usersTasks = Array();
 
+// Generate html for each user's tasks
 foreach ($usersToGet as $userNumber => $userName) {
     $usersTasks[$userNumber] = getUserTasks($userNumber, $userName);
+}
+
+// Generate html for issues resolved for testing
+if (isset($_GET['showtestable'])) {
+    $usersTasks['testable'] = getTestableTasks();
 }
 
 renderTemplate($usersTasks);
@@ -49,6 +55,36 @@ renderTemplate($usersTasks);
 
 function renderTemplate($data) {
     require_once "template.php";
+}
+
+function getTestableTasks() {
+    global $apikey;
+    global $redmineRoot;
+    global $projectNumber;
+
+    $url = $redmineRoot . "/issues.json?project_id=" . $projectNumber . "&status_id=" . "7"; // todo: fix hardcoded status id
+    $url .= "&key=" . $apikey;
+    $dataArr = json_decode(file_get_contents($url), TRUE);
+//    print_r ($dataArr);
+    
+    $issueArr = Array();
+    foreach ($dataArr['issues'] as $nro => $issue) {
+        //        print_r ($issue); // debug
+                $issueHtml = "";
+            
+                $issueHtml .= "<h4>" . $issue['subject'] . "</h4>\n<p>";
+                $issueHtml .= $issue['tracker']['name'] . " <a href='" . $redmineRoot . "/issues/" . $issue['id'] . "'>#" . $issue['id'] . "</a></p>";
+            
+                $issueArr[$issue['status']['name']][] = $issueHtml;
+    }
+
+    $html = "<div class='user' id='userNumberTestable'>";
+    
+    $html .= "<h2>Resolved for testing</h2>";
+    $html .= getTasksUnderStatus($issueArr, "Resolved for testing"); // todo: parametrize name?
+    $html .= "</div><!-- userWrapper ends -->";
+
+    return $html;
 }
 
 // Get tasks of a single user
@@ -101,6 +137,7 @@ function getUserTasks($userNumber, $userName) {
     
     $html .= "<h2>$userName <!--($userNumber)--></h2>";
     
+//    $html .= getTasksUnderStatus($issueArr, "Resolved for testing");
     $html .= getTasksUnderStatus($issueArr, "In Progress");
     $html .= getTasksUnderStatus($issueArr, "Sprint Backlog");
     $html .= "</div><!-- userWrapper ends -->";

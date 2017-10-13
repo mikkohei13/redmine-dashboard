@@ -19,6 +19,10 @@ To see also unassigned issues, add user to the GET parameters:
 
     none:Unassigned
 
+To see also testable issues, add to the GET parameters:
+
+   &showtestable
+
 Todo
 ====
 
