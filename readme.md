@@ -27,4 +27,6 @@ Todo
 ====
 
 - Testing...
+- @todo items on code
+- refactoring
 - `make setup` to change the docker-compose.yml filename

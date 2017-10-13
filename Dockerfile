@@ -1,5 +1,6 @@
 # Build this using
 # docker build -t mikkohei13/redmine-dashboard:VERSION-NUMBER .
+# See version numbers/tags at https://hub.docker.com/r/mikkohei13/redmine-dashboard/tags/
 
 FROM richarvey/nginx-php-fpm:1.3.5
 
