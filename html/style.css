@@ -12,7 +12,10 @@ body {
 
 h1 {
     color: #37595B;
+}
+h1 #counts {
     font-weight: normal;
+    margin-left: 2em;    
 }
 
 .note {

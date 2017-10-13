@@ -6,7 +6,11 @@
         <link rel="stylesheet" href="style.css?_=<?php echo rand(0,100000); ?>">
     </head>
     <body>
-        <h1>★ Backlog &amp; In Progress -issues by assigned user</h1>
+        <h1>★ Open tasks <span id="counts">
+            <span id="openTaskCount"><?php echo $undoneTaskCount; ?> undone +</span>
+            <span id="openTaskCount"><?php echo $testableTaskCount; ?> testable</span>
+            <span id="openTaskCount">= <?php echo $openTaskCount; ?> open</span>
+        </span></h1>
         <p id="note">Note that: <br>
         - Order of tasks under each status is random, since Redmine doesn't inherently support ordering.<br>
         - Issues involving multiple people are under one person only, since Redmine dosn't support multiple assignees.

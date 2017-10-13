@@ -26,6 +26,9 @@ elseif (! isset($_GET['projectnumber']) || ! isset($_GET['users'])) {
     exit();
 }
 $projectNumber = intval($_GET['projectnumber']);
+$openTaskCount = 0;
+$testableTaskCount = 0;
+
 
 // Get GET parameters
 $usersString = filter_input(INPUT_GET, "users", FILTER_SANITIZE_STRING);
@@ -49,11 +52,12 @@ if (isset($_GET['showtestable'])) {
     $usersTasks['testable'] = getTestableTasks();
 }
 
-renderTemplate($usersTasks);
+renderTemplate($usersTasks, $openTaskCount, $testableTaskCount);
 
 //-----------------------------------------------------------------------------
 
-function renderTemplate($data) {
+function renderTemplate($data, $openTaskCount, $testableTaskCount) {
+    $undoneTaskCount = $openTaskCount - $testableTaskCount;
     require_once "template.php";
 }
 
@@ -61,7 +65,8 @@ function getTestableTasks() {
     global $apikey;
     global $redmineRoot;
     global $projectNumber;
-
+    global $testableTaskCount;
+    
     $url = $redmineRoot . "/issues.json?project_id=" . $projectNumber . "&status_id=" . "7"; // todo: fix hardcoded status id
     $url .= "&key=" . $apikey;
     $dataArr = json_decode(file_get_contents($url), TRUE);
@@ -70,12 +75,13 @@ function getTestableTasks() {
     $issueArr = Array();
     foreach ($dataArr['issues'] as $nro => $issue) {
         //        print_r ($issue); // debug
-                $issueHtml = "";
-            
-                $issueHtml .= "<h4>" . $issue['subject'] . "</h4>\n<p>";
-                $issueHtml .= $issue['tracker']['name'] . " <a href='" . $redmineRoot . "/issues/" . $issue['id'] . "'>#" . $issue['id'] . "</a></p>";
-            
-                $issueArr[$issue['status']['name']][] = $issueHtml;
+            $issueHtml = "";
+        
+            $issueHtml .= "<h4>" . $issue['subject'] . "</h4>\n<p>";
+            $issueHtml .= $issue['tracker']['name'] . " <a href='" . $redmineRoot . "/issues/" . $issue['id'] . "'>#" . $issue['id'] . "</a></p>";
+        
+            $issueArr[$issue['status']['name']][] = $issueHtml;
+            $testableTaskCount++;
     }
 
     $html = "<div class='user' id='userNumberTestable'>";
@@ -128,7 +134,6 @@ function getUserTasks($userNumber, $userName) {
         $issueHtml .= $issue['tracker']['name'] . " <a href='" . $redmineRoot . "/issues/" . $issue['id'] . "'>#" . $issue['id'] . "</a></p>";
     
         $issueArr[$issue['status']['name']][] = $issueHtml;
-    
     }
     
     //print_r ($issueArr); exit();
@@ -148,11 +153,13 @@ function getUserTasks($userNumber, $userName) {
 
 // Print issues under a single status
 function getTasksUnderStatus($issueArr, $statusName) {
+    global $openTaskCount;    
     $html = "<h3>$statusName</h3>";
     if (! empty($issueArr[$statusName])) {
 //        print_r ($issueArr[$statusName]);
         foreach ($issueArr[$statusName] as $nro => $issueHtml) {
             $html .= $issueHtml;
+            $openTaskCount++;
         }
     }
     return $html;
