@@ -15,9 +15,7 @@
         <?php
 
         foreach ($data as $userNumber => $html) {
-            echo "<div class='user'>";
             echo $html;
-            echo "</div>\n";
         }
 
         ?>

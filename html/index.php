@@ -51,22 +51,41 @@ function renderTemplate($data) {
     require_once "template.php";
 }
 
-// Get user's tasks
+// Get tasks of a single user
 function getUserTasks($userNumber, $userName) {
     global $apikey;
     global $redmineRoot;
     global $projectNumber;
 
-    $url = $redmineRoot . "/issues.json?project_id=" . $projectNumber . "&assigned_to_id=" . $userNumber;
-    $url .= "&key=" . $apikey;
-    $dataArr = json_decode(file_get_contents($url), TRUE);
+    if ("none" == $userNumber) {
+        $url = $redmineRoot . "/issues.json?project_id=" . $projectNumber;
+        $url .= "&key=" . $apikey;
+//        echo $url; // debug
+        $dataArr = json_decode(file_get_contents($url), TRUE);
+//        print_r ($dataArr);
+
+        // Filter out tasks that have been assigned to someone 
+        foreach ($dataArr['issues'] as $nro => $issue) {
+            if ($issue['assigned_to']) {
+//                echo "\n\nAssigned to someone:";  print_r($issue); // debug
+                unset($dataArr['issues'][$nro]);
+            }
+        }
+    }
+    else {
+        $url = $redmineRoot . "/issues.json?project_id=" . $projectNumber . "&assigned_to_id=" . $userNumber;
+        $url .= "&key=" . $apikey;
+//        echo $url; // debug
+        $dataArr = json_decode(file_get_contents($url), TRUE);
+    }
     
-    //print_r ($dataArr); exit("Debug end");
+//    echo "WHOLE ARRAY: \n\n ";print_r ($dataArr); exit("Debug end");
     
     // Set the issues as html to array, grouped by issue status
     // The data does not include information about the order of items in the agile plugin
     $issueArr = Array();
     foreach ($dataArr['issues'] as $nro => $issue) {
+//        print_r ($issue); // debug
         $issueHtml = "";
     
         $issueHtml .= "<h4>" . $issue['subject'] . "</h4>\n<p>";
@@ -77,11 +96,14 @@ function getUserTasks($userNumber, $userName) {
     }
     
     //print_r ($issueArr); exit();
+
+    $html = "<div class='user' id='userNumber$userNumber'>";
     
-    $html = "<h2>$userName <!--($userNumber)--></h2>";
+    $html .= "<h2>$userName <!--($userNumber)--></h2>";
     
     $html .= getTasksUnderStatus($issueArr, "In Progress");
-    $html .= getTasksUnderStatus($issueArr, "Backlog");
+    $html .= getTasksUnderStatus($issueArr, "Sprint Backlog");
+    $html .= "</div><!-- userWrapper ends -->";
     
     //echo "<pre>"; print_r ($dataArr); exit("\nDEBUG END");
     return $html;    
