@@ -26,6 +26,7 @@ To see also testable issues, add to the GET parameters:
 Todo
 ====
 
+- Test that unassigned-lane contains all unassigned tasks, e.g. #1099
 - Testing...
 - @todo items on code
 - refactoring
