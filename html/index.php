@@ -1,5 +1,4 @@
 <?php
-/*LOCAL CHANGE*/
 
 // Get secrets from environment variables
 $apikey = getenv("redmine-dashboard_api_key");
@@ -38,7 +37,6 @@ foreach ($usersArr as $nro => $user) {
     $temp = explode(":", $user);
     $usersToGet[$temp[0]] = $temp[1];
 }
-//print_r ($usersToGet); exit("debug ends");
 
 $usersTasks = Array();
 
@@ -70,11 +68,9 @@ function getTestableTasks() {
     $url = $redmineRoot . "/issues.json?project_id=" . $projectNumber . "&status_id=" . "7"; // todo: fix hardcoded status id
     $url .= "&key=" . $apikey;
     $dataArr = json_decode(file_get_contents($url), TRUE);
-//    print_r ($dataArr);
     
     $issueArr = Array();
     foreach ($dataArr['issues'] as $nro => $issue) {
-        //        print_r ($issue); // debug
             $issueHtml = "";
         
             $issueHtml .= "<h4>" . $issue['subject'] . "</h4>\n<p>";
@@ -99,25 +95,23 @@ function getUserTasks($userNumber, $userName) {
     global $redmineRoot;
     global $projectNumber;
 
+    // Get issues assigned to non-one: first get all issues, then filter out those that have been assigned to someone.
     if ("none" == $userNumber) {
         $url = $redmineRoot . "/issues.json?project_id=" . $projectNumber;
         $url .= "&key=" . $apikey;
-//        echo $url; // debug
         $dataArr = json_decode(file_get_contents($url), TRUE);
-//        print_r ($dataArr);
 
         // Filter out tasks that have been assigned to someone 
         foreach ($dataArr['issues'] as $nro => $issue) {
             if ($issue['assigned_to']) {
-//                echo "\n\nAssigned to someone:";  print_r($issue); // debug
                 unset($dataArr['issues'][$nro]);
             }
         }
     }
+    // Get issues assigned to a certain person
     else {
         $url = $redmineRoot . "/issues.json?project_id=" . $projectNumber . "&assigned_to_id=" . $userNumber;
         $url .= "&key=" . $apikey;
-//        echo $url; // debug
         $dataArr = json_decode(file_get_contents($url), TRUE);
     }
     
@@ -127,7 +121,12 @@ function getUserTasks($userNumber, $userName) {
     // The data does not include information about the order of items in the agile plugin
     $issueArr = Array();
     foreach ($dataArr['issues'] as $nro => $issue) {
-//        print_r ($issue); // debug
+        // Skip issues with Tracker "detail"
+        if (8 == $issue['tracker']['id']) {
+            continue;
+        }
+
+//        print_r ($issue); exit(); // debug: show what Redmine returns from each issue
         $issueHtml = "";
     
         $issueHtml .= "<h4>" . $issue['subject'] . "</h4>\n<p>";
@@ -136,18 +135,13 @@ function getUserTasks($userNumber, $userName) {
         $issueArr[$issue['status']['name']][] = $issueHtml;
     }
     
-    //print_r ($issueArr); exit();
-
-    $html = "<div class='user' id='userNumber$userNumber'>";
-    
-    $html .= "<h2>$userName <!--($userNumber)--></h2>";
-    
+    $html = "<div class='user' id='userNumber$userNumber'>";    
+    $html .= "<h2>$userName <!--($userNumber)--></h2>";    
 //    $html .= getTasksUnderStatus($issueArr, "Resolved for testing");
     $html .= getTasksUnderStatus($issueArr, "In Progress");
     $html .= getTasksUnderStatus($issueArr, "Sprint Backlog");
     $html .= "</div><!-- userWrapper ends -->";
     
-    //echo "<pre>"; print_r ($dataArr); exit("\nDEBUG END");
     return $html;    
 }
 
@@ -156,7 +150,6 @@ function getTasksUnderStatus($issueArr, $statusName) {
     global $openTaskCount;    
     $html = "<h3>$statusName</h3>";
     if (! empty($issueArr[$statusName])) {
-//        print_r ($issueArr[$statusName]);
         foreach ($issueArr[$statusName] as $nro => $issueHtml) {
             $html .= $issueHtml;
             $openTaskCount++;
